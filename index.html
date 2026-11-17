@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EBS 앱으로 재생</title>
+<style>
+  :root{--bg:#F7F8F3;--card:#fff;--ink:#1E3A4A;--muted:#5E6E78;--btn:#1E3A4A;--btn-ink:#fff;--line:#D7DEE2}
+  @media (prefers-color-scheme:dark){:root{--bg:#141E27;--card:#1B2833;--ink:#E6EEF3;--muted:#9FB0BC;--btn:#E6EEF3;--btn-ink:#141E27;--line:#2E404D}}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);color:var(--ink);
+    font-family:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;padding:24px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px 24px;max-width:460px;width:100%;
+    display:flex;flex-direction:column;gap:16px;text-align:center}
+  h1{font-size:24px;margin:0;line-height:1.35}
+  p{margin:0;color:var(--muted);font-size:15px;line-height:1.6}
+  a.play{display:block;background:var(--btn);color:var(--btn-ink);text-decoration:none;font-weight:700;font-size:22px;
+    border-radius:16px;padding:20px 16px}
+  a.web{color:var(--ink);font-size:15px}
+  .err{color:#C0392B}
+</style>
+</head>
+<body>
+<main class="card" id="card">
+  <p>EBS 초등 앱</p>
+  <h1 id="title">강의 준비 중…</h1>
+  <a class="play" id="play" href="#">▶ EBS 앱에서 재생</a>
+  <p>앱이 바로 열리지 않으면 위 버튼을 눌러 주세요.<br>처음에는 EBS 초등 앱 설치와 로그인이 필요해요.</p>
+  <a class="web" id="web" href="#">앱 대신 웹 학습창으로 보기</a>
+</main>
+<script>
+(function(){
+  var q=new URLSearchParams(location.search);
+  var c=q.get("c")||"", s=q.get("s")||"", l=q.get("l")||"", t=q.get("t")||"";
+  if(!/^\d{6,12}$/.test(c)||!/^LS\d{10,20}$/.test(l)){
+    document.getElementById("title").textContent="강의 정보가 없어요";
+    document.getElementById("title").className="err";
+    document.getElementById("play").style.display="none";
+    document.getElementById("web").style.display="none";
+    return;
+  }
+  document.getElementById("title").textContent=t||"EBS 강의";
+  /* EBS 모바일 사이트가 쓰는 EBS 초등 앱(kr.ebs.primary.player) 실행 주소와 같은 형식 */
+  var app="intent://player?site-id=ebs&user-id=&info-url=http://primary.ebs.co.kr/frame/course/getPlayContentsV2"
+    +"&data=format%3D1%26mode%3Dplay%26items%3Dplay%253B%253BPS%253B"+c+"%253B"+l
+    +"&req-version=0#Intent;scheme=ebsprimary;package=kr.ebs.primary.player;end";
+  var web="https://primary.ebs.co.kr/pleasure/course/player/main/index?cid="+c+(/^STEP\d+$/.test(s)?"&sid="+s:"")+"&lid="+l+"&eno=1&encType=M10&indexPosition=";
+  document.getElementById("play").href=app;
+  document.getElementById("web").href=web;
+  /* 탭으로 열렸을 때 자동 실행 시도 (크롬이 막으면 버튼으로) */
+  setTimeout(function(){ location.href=app; },300);
+})();
+</script>
+</body>
+</html>
